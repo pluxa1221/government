@@ -1,0 +1,13 @@
+name: government
+version: '${project.version}'
+author: MihailPrud
+main: org.government.Government
+api-version: '1.16'
+softdepend: [LuckPerms]
+commands:
+  org:
+    usage: "/<command>"
+  workID:
+    usage: "/<command>"
+  passport:
+    usage: "/<command> <name> <surname> <age>"
