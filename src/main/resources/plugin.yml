@@ -3,6 +3,11 @@ main: org.government.Government
 version: 1.0
 api-version: 1.16
 commands:
+  departmentchat:
+    description: Сообщение в рацию департаментов (чат между организациями)
+    usage: /d <сообщение>
+    aliases: [depchat, dchat, departmentchat]
   org:
     description: Управление организациями
     usage: /org <create|invite|list>
+    aliases: [organization, org]

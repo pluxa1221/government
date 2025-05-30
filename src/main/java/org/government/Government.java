@@ -4,6 +4,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.government.commands.DepartmentChatCommand;
 import org.government.commands.OrganizationCommand;
 import org.government.utils.Organization;
 
@@ -28,6 +29,7 @@ public class Government extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new events(this), this);
 
         getCommand("org").setExecutor(new OrganizationCommand(this));
+        getCommand("departmentchat").setExecutor(new DepartmentChatCommand(this));
 
         // Prepare file for storage
         orgFile = new File(getDataFolder(), "organizations.yml");
@@ -42,6 +44,13 @@ public class Government extends JavaPlugin {
         loadOrganizations();
 
         startAutoSaveTask();
+    }
+
+    public Organization getPlayerOrganization(String player) {
+        for (Organization org : organizations.values()) {
+            if (org.getMembers().contains(player)) return org;
+        }
+        return null;
     }
 
     private void startAutoSaveTask() {
