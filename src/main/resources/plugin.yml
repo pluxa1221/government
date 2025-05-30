@@ -2,11 +2,16 @@ name: Government
 main: org.government.Government
 version: 1.0
 api-version: 1.16
+depend: [luckperms]
 commands:
   departmentchat:
     description: Сообщение в рацию департаментов (чат между организациями)
     usage: /d <сообщение>
     aliases: [depchat, dchat, departmentchat]
+  organizationchat:
+    description: Сообщение в рацию своей организации
+    usage: /organizationchat <сообщение>
+    aliases: [orgchat, orgc, r]
   org:
     description: Управление организациями
     usage: /org <create|invite|list>

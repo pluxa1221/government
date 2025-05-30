@@ -34,14 +34,12 @@
             <scope>provided</scope>
         </dependency>
         <!-- LuckPerms API (если используется) -->
-        <!--
         <dependency>
             <groupId>net.luckperms</groupId>
             <artifactId>api</artifactId>
             <version>5.4</version>
             <scope>provided</scope>
         </dependency>
-        -->
     </dependencies>
 
     <build>

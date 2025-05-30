@@ -1,35 +1,44 @@
 package org.government;
 
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.government.commands.DepartmentChatCommand;
+import org.government.commands.OrganizationChatCommand;
 import org.government.commands.OrganizationCommand;
+import org.government.integrations.LuckPermsIntegration;
 import org.government.utils.Organization;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Government extends JavaPlugin {
+    private LuckPerms luckPerms;
 
     private static Government INSTANCE;
-    public final HashMap<String, Organization> organizations = new HashMap<>();
+
+    private Map<Integer, String> globalRankNames = new HashMap<>();
+
     private File orgFile;
     private FileConfiguration orgConfig;
-    private Map<Integer, String> globalRankNames = new HashMap<>();
+
+    private Map<String, Organization> organizations = new HashMap<>();
+    private Map<String, String> playerOrgs = new HashMap<>(); // playerName -> orgName
 
     @Override
     public void onEnable() {
+        luckPerms = LuckPermsProvider.get();
+
         INSTANCE = this;
         getServer().getPluginManager().registerEvents(new events(this), this);
 
-        getCommand("org").setExecutor(new OrganizationCommand(this));
+        getCommand("org").setExecutor(new OrganizationCommand(this, new LuckPermsIntegration()));
         getCommand("departmentchat").setExecutor(new DepartmentChatCommand(this));
+        getCommand("organizationchat").setExecutor(new OrganizationChatCommand(this));
 
         // Prepare file for storage
         orgFile = new File(getDataFolder(), "organizations.yml");
@@ -46,11 +55,8 @@ public class Government extends JavaPlugin {
         startAutoSaveTask();
     }
 
-    public Organization getPlayerOrganization(String player) {
-        for (Organization org : organizations.values()) {
-            if (org.getMembers().contains(player)) return org;
-        }
-        return null;
+    public LuckPerms getLuckPerms() {
+        return luckPerms;
     }
 
     private void startAutoSaveTask() {
@@ -88,15 +94,6 @@ public class Government extends JavaPlugin {
         return INSTANCE;
     }
 
-    public Organization getOrganization(String player) {
-        for (Organization org : organizations.values()) {
-            if (org.getMembers().contains(player)) {
-                return org;
-            }
-        }
-        return null;
-    }
-
     private void loadOrganizations() {
         organizations.clear();
         if (orgFile.exists()) {
@@ -122,9 +119,10 @@ public class Government extends JavaPlugin {
                 Organization org = new Organization(orgName, leader, localRanks);
 
                 for (String member : members) {
-                    org.addMember(member);
+                    org.addMember(member, rank.get(member));
                 }
-                org.setRanks(rank);
+
+                org.setRanks(localRanks);
 
                 organizations.put(org.getName(), org);
             }
@@ -151,5 +149,45 @@ public class Government extends JavaPlugin {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // Возвращает дефолтные ранги для новой организации
+    public Map<Integer, String> getDefaultRanks() {
+        Map<Integer, String> ranks = new HashMap<>();
+        for (int i = 1; i <= 10; i++) {
+            ranks.put(i, "Ранг " + i);
+        }
+        return ranks;
+    }
+
+    // Добавляет новую организацию
+    public void addOrganization(Organization org) {
+        organizations.put(org.getName(), org);
+        for (String member : org.getMembers()) {
+            playerOrgs.put(member, org.getName());
+        }
+    }
+
+    // Получает организацию по названию
+    public Organization getOrganization(String name) {
+        return organizations.get(name);
+    }
+
+    // Получает организацию игрока
+    public Organization getPlayerOrganization(String player) {
+        String org = playerOrgs.get(player);
+        if (org == null) return null;
+        return organizations.get(org);
+    }
+
+    // Для поддержки /org list
+    public Collection<Organization> getOrganizations() {
+        return organizations.values();
+    }
+
+    // Позволяет обновлять playerOrgs при вступлении/выходе
+    public void updatePlayerOrg(String player, String orgName) {
+        if (orgName == null) playerOrgs.remove(player);
+        else playerOrgs.put(player, orgName);
     }
 }

@@ -1,63 +1,83 @@
 package org.government.utils;
 
-import org.government.Government;
+import org.government.integrations.LuckPermsIntegration;
 
 import java.util.*;
 
 public class Organization {
-    private final String name;
-    private final String leader;
-    private final List<String> members;
-    private final Map<String, Integer> ranks;
-    private final Map<Integer, String> localRankNames; // индивидуальные названия
+    private String name;
+    private String leader;
+    private Map<String, Integer> members = new HashMap<>(); // name -> rank
+    private Map<Integer, String> rankNames = new HashMap<>();
+    private LuckPermsIntegration lp;
 
-    public Organization(String name, String leader, Map<Integer, String> defaultRankNames) {
+    public Organization(String name, String leader, Map<Integer, String> defaultRanks) {
         this.name = name;
         this.leader = leader;
-        this.members = new ArrayList<>();
-        this.ranks = new HashMap<>();
-        this.localRankNames = new HashMap<>(defaultRankNames);
-
-        addMember(leader);
-        setRank(leader, 10);
+        this.rankNames.putAll(defaultRanks);
+        this.members.put(leader, 10); // лидер всегда 10 ранг
+        this.lp = new LuckPermsIntegration(); // Инициализация интеграции LuckPerms
     }
 
-    // --- Работа с участниками и рангами ---
-    public void addMember(String player) {
-        if (!members.contains(player)) {
-            members.add(player);
-            setRank(player, 1);
-        }
+    public String getName() { return name; }
+    public String getLeader() { return leader; }
+
+    public Set<String> getMembers() { return members.keySet(); }
+
+    public boolean isLeader(String player) {
+        return leader.equalsIgnoreCase(player);
     }
 
-    public void setRank(String player, int rank) {
-        ranks.put(player, rank);
+    public boolean hasMember(String player) {
+        return members.containsKey(player);
     }
 
     public int getRank(String player) {
-        return ranks.getOrDefault(player, 0);
+        return members.getOrDefault(player, 0);
     }
 
-    // --- Работа с названиями рангов ---
     public String getRankName(int rank) {
-        return localRankNames.getOrDefault(rank, Government.getInstance().getGlobalRankName(rank));
+        return rankNames.getOrDefault(rank, "Ранг " + rank);
     }
 
-    public void setRanks(Map<String, Integer> ranks) {
-        this.ranks.clear();
-        this.ranks.putAll(ranks);
+    public void setRankName(int rank, String name) {
+        rankNames.put(rank, name);
     }
 
-    public void setLocalRankName(int rank, String name) {
-        localRankNames.put(rank, name);
+    public void addMember(String player, int rank) {
+        members.put(player, rank);
     }
 
+    public void removeMember(String player) {
+        members.remove(player);
+    }
+
+    public void setRank(String player, int rank) {
+        if (members.containsKey(player)) {
+            lp.removeOrganizationGroups(player); // Удаляем старые группы
+            members.put(player, rank);
+        }
+    }
+
+    // Для проверки прав — можно сделать более сложную логику
+    public boolean canPromote(String player) {
+        return isLeader(player);
+    }
+
+    public boolean canDemote(String player) {
+        return isLeader(player);
+    }
+
+    // Добавить этот метод для замены всех рангов
+    public void setRanks(Map<Integer, String> ranks) {
+        if (ranks != null) {
+            rankNames.clear();
+            rankNames.putAll(ranks);
+        }
+    }
+
+    // Добавить этот метод для получения локальных названий рангов
     public Map<Integer, String> getLocalRankNames() {
-        return localRankNames;
+        return new HashMap<>(rankNames);
     }
-
-    // --- Прочее ---
-    public String getName() { return name; }
-    public String getLeader() { return leader; }
-    public List<String> getMembers() { return members; }
 }
