@@ -7,6 +7,7 @@ import net.luckperms.api.node.types.InheritanceNode;
 import org.bukkit.entity.Player;
 import org.government.Government;
 
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class LuckPermsIntegration {
@@ -27,12 +28,15 @@ public class LuckPermsIntegration {
      */
     public void setOrganizationGroup(Player player, String orgNameOriginal, int rank) {
         if (player == null || orgNameOriginal == null || rank <= 0) return;
-        User user = luckPerms.getUserManager().getUser(player.getUniqueId());
+        UUID uuid = player.getUniqueId();
+        User user = luckPerms.getUserManager().getUser(uuid);
         if (user == null) {
             // Пробуем загрузить асинхронно (если нет в памяти)
-            luckPerms.getUserManager().loadUser(player.getUniqueId()).thenAcceptAsync(u -> {
-                setOrganizationGroupInternal(u, orgNameOriginal, rank);
-                luckPerms.getUserManager().saveUser(u);
+            luckPerms.getUserManager().loadUser(uuid).thenAcceptAsync(u -> {
+                if (u != null) {
+                    setOrganizationGroupInternal(u, orgNameOriginal, rank);
+                    luckPerms.getUserManager().saveUser(u);
+                }
             });
             return;
         }
@@ -41,11 +45,7 @@ public class LuckPermsIntegration {
     }
 
     private void setOrganizationGroupInternal(User user, String orgNameOriginal, int rank) {
-        // Транслитерируем и формируем название группы
-        String groupBase = transliterate(orgNameOriginal).toUpperCase().replaceAll("[^A-Z0-9_-]", "");
-        String groupName = groupBase + "-" + rank;
-
-        // Удаляем старые орг-группы (по паттерну: ОРГАНИЗАЦИЯ-РАНГ)
+        // Удаляем старые орг-группы (fsb-1, fsb-2 и т.д.)
         user.data().clear(node -> {
             if (node instanceof InheritanceNode) {
                 String group = ((InheritanceNode) node).getGroupName();
@@ -55,6 +55,8 @@ public class LuckPermsIntegration {
         });
 
         // Добавляем новую группу
+        String groupBase = transliterate(orgNameOriginal).toUpperCase().replaceAll("[^A-Z0-9_-]", "");
+        String groupName = groupBase + "-" + rank;
         InheritanceNode node = InheritanceNode.builder(groupName).build();
         user.data().add(node);
     }
