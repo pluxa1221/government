@@ -33,7 +33,8 @@ public class OrganizationCommand implements CommandExecutor {
                     player.sendMessage("Вы уже состоите в организации.");
                     return true;
                 }
-                Organization org = new Organization(args[1], player.getName());
+                // при создании организации:
+                Organization org = new Organization(args[1], player.getName(), plugin.getGlobalRankNames());
                 plugin.organizations.put(org.getName(), org);
                 plugin.saveOrganizations();
                 player.sendMessage("Организация создана: " + org.getName());
