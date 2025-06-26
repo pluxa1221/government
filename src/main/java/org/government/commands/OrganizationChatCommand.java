@@ -21,13 +21,13 @@ public class OrganizationChatCommand implements CommandExecutor {
         Player player = (Player) sender;
 
         if (args.length == 0) {
-            player.sendMessage("§cИспользуйте: /orgradio <сообщение>");
+            player.sendMessage(plugin.getMessage("help.chat.organization"));
             return true;
         }
 
         Organization org = plugin.getPlayerOrganization(player.getName());
         if (org == null) {
-            player.sendMessage("§cВы не состоите в организации!");
+            player.sendMessage(plugin.getMessage("organization.not_member"));
             return true;
         }
 
@@ -35,7 +35,7 @@ public class OrganizationChatCommand implements CommandExecutor {
         String orgName = org.getName();
         String rankName = org.getRankName(org.getRank(player.getName()));
 
-        String radioMessage = String.format("§a[ОРГ.РАЦИЯ] §6[%s] §e[%s] §f%s: §r%s", orgName, rankName, player.getName(), message);
+        String radioMessage = String.format("§a[РАЦИЯ] §6[%s] §e[%s] §f%s: §r%s", orgName, rankName, player.getName(), message);
 
         // Отправить только членам этой организации
         for (Player p : Bukkit.getOnlinePlayers()) {

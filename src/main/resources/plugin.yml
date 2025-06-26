@@ -3,7 +3,7 @@ main: org.government.Government
 version: 1.0
 api-version: 1.16
 depend:
-  - [LuckPerms]
+  - luckperms
 commands:
   departmentchat:
     description: Сообщение в рацию департаментов (чат между организациями)

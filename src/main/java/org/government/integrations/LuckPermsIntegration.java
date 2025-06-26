@@ -33,6 +33,8 @@ public class LuckPermsIntegration {
         String groupName = org + "-" + rank;
         UUID uuid = player.getUniqueId();
 
+        System.out.println("Устанавливаем группу " + groupName + " для игрока " + player.getName() + " (UUID: " + uuid + ")");
+
         // Сначала удаляем все старые орг-группы вручную (на всякий случай)
         removeOrganizationGroups(player);
 

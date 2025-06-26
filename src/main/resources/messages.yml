@@ -1,0 +1,69 @@
+# Сообщения для плагина Government
+
+prefix: "&7[&9Организации&7] "
+
+no_permission: "&cУ вас нет прав для выполнения этой команды!"
+only_player: "&cЭту команду может использовать только игрок!"
+
+organization:
+  invite_received: "&cВы были приглашены в организацию &e{org}&a"
+  player_already_member: "&cИгрок &e{player} &cуже состоите в организации!"
+  created: "&cОрганизация &e{org}&a успешно создана!"
+  exists: "&cОрганизация с таким названием уже существует!"
+  deleted: "&aОрганизация &e{org}&a удалена!"
+  not_found: "&cОрганизация &e{org}&c не найдена!"
+  joined: "&aВы вступили в организацию &e{org}&a!"
+  already_member: "&cВы уже состоите в организации!"
+  left: "&aВы покинули организацию &e{org}&a."
+  not_member: "&cВы не состоите ни в одной организации!"
+  promoted: "&aИгрок &e{player}&a повышен до ранга &e{rank}&a!"
+  demoted: "&aИгрок &e{player}&a понижен до ранга &e{rank}&a!"
+  removed: "&aИгрок &e{player}&a исключен из организации!"
+  set_rank: "&aРанг игрока &e{player}&a установлен на &e{rank}&a!"
+  set_leader: "&aЛидер организации теперь &e{player}&a!"
+  set_name: "&aНазвание организации изменено на &e{name}&a!"
+  not_leader: "&cТолько лидер организации может выполнять это действие!"
+  not_in_org: "&cВы не состоите в организации!"
+  no_such_member: "&cУказанный игрок не состоит в вашей организации!"
+  rank_invalid: "&cУказан недопустимый ранг!"
+  player_not_found: "&cИгрок &e{player}&c не найден!"
+  player_joined: "&aИгрок &e{player}&a присоединился к организации!"
+  player_not_in_your_org: "&cИгрок &e{player}&c не состоит в вашей организации!"
+  player_has_max_ranks: "&cИгрок &e{player}&c уже достиг максимального ранга!"
+  player_has_min_ranks: "&cИгрок &e{player}&c уже на минимальном ранге!"
+  player_promoted: "&aВы повышены до ранга &e{rank}&a!"
+  player_demoted: "&aВы понижены до ранга &e{rank}&a!"
+  player_removed: "&aВы были исключены из организации!"
+  rank_name_set: "&aНазвание ранга &e{rank}&a изменено на &e{name}&a!"
+  leader_cannot_leave: "&cЛидер не может покинуть организацию. Передайте лидерство другому игроку!"
+
+chat:
+  org_format: "&7[&b{org}&7] &f{player}: &r{message}"
+  dep_format: "&6[Департамент] &f{player}: &r{message}"
+
+errors:
+  invalid_rank_format: "&cНеверный формат ранга. §cВведите номер ранга числом!"
+  invalid_rank_number: "&cУказан недопустимый номер ранга. §cВведите число от {min} до {max}!"
+  unknown_command: "&cНеизвестная подкоманда. Используйте &e/org help"
+  internal: "&cПроизошла внутренняя ошибка. Попробуйте позже."
+
+help:
+  org:
+    general: "§eИспользуйте: /org create | invite | promote | demote | setrankname | info | list | leave | remove>"
+    create: "&e/org create <название> &7- создать организацию"
+    delete: "&e/org delete <название> &7- удалить организацию"
+    join: "&e/org join <название> &7- вступить в организацию"
+    leave: "&e/org leave &7- покинуть организацию"
+    promote: "&e/org promote <игрок> &7- повысить игрока"
+    demote: "&e/org demote <игрок> &7- понизить игрока"
+    setrank: "&e/org setrank <игрок> <ранг> &7- установить ранг"
+    setrankname: "&e/org setrankname <ранг> <новое название> &7- изменить название ранга"
+    setleader: "&e/org setleader <игрок> &7- передать лидерство"
+    setname: "&e/org setname <новое название> &7- изменить название"
+    info: "&e/org info <название> &7- информация об организации"
+    list: "&e/org list &7- список организаций"
+    invite: "&e/org invite <игрок> &7- пригласить игрока"
+    unknown_command: "§cНеизвестная подкоманда. Доступные: create, invite, promote, demote, setrankname, info, list, leave, remove"
+  chat:
+    organization: "&e/r <сообщение> &7- написать сообщение в рацию организации"
+    department: "&e/dchat <сообщение> &7- написать сообщение в рацию департамента"

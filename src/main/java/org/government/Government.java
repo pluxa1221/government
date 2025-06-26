@@ -18,6 +18,8 @@ import org.government.utils.Organization;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class Government extends JavaPlugin {
@@ -29,6 +31,9 @@ public class Government extends JavaPlugin {
 
     private File orgFile;
     private FileConfiguration orgConfig;
+
+    private File messagesFile;
+    private FileConfiguration messagesConfig;
 
     private Map<String, Organization> organizations = new HashMap<>();
     private Map<String, String> playerOrgs = new HashMap<>(); // playerName -> orgName
@@ -73,7 +78,50 @@ public class Government extends JavaPlugin {
         loadGlobalRankNames();
         loadOrganizations();
 
+        saveDefaultMessages();
+        loadMessages();
+
         startAutoSaveTask();
+    }
+
+    public void saveDefaultMessages() {
+        if (messagesFile == null)
+            messagesFile = new File(getDataFolder(), "messages.yml");
+        if (!messagesFile.exists()) {
+            saveResource("messages.yml", false);
+        }
+    }
+
+    public void loadMessages() {
+        if (messagesFile == null)
+            messagesFile = new File(getDataFolder(), "messages.yml");
+        messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
+
+        // Загружаем дефолтные значения из jar, если вдруг их не хватает
+        InputStream defConfigStream = getResource("messages.yml");
+        if (defConfigStream != null) {
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream));
+            messagesConfig.setDefaults(defConfig);
+        }
+    }
+
+    public String getMessage(String path) {
+        String prefix = messagesConfig.getString("prefix", "");
+        String msg = messagesConfig.getString(path);
+        if (msg == null) msg = "&c[Ошибка]: Не найдено сообщение " + path;
+        return (prefix + msg).replace("&", "§");
+    }
+
+    public String getRawMessage(String path) {
+        String msg = messagesConfig.getString(path);
+        if (msg == null) msg = "&c[Ошибка]: Не найдено сообщение " + path;
+        return msg.replace("&", "§");
+    }
+
+    public List<String> getMessageList(String path) {
+        List<String> list = messagesConfig.getStringList(path);
+        if (list.isEmpty()) list.add("&c[Ошибка]: Не найден список сообщений " + path);
+        return list;
     }
 
     public LuckPerms getLuckPerms() {
