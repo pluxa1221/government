@@ -2,6 +2,7 @@ package org.government;
 
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,6 +11,9 @@ import org.government.commands.DepartmentChatCommand;
 import org.government.commands.OrganizationChatCommand;
 import org.government.commands.OrganizationCommand;
 import org.government.integrations.LuckPermsIntegration;
+import org.government.tabcomplete.DepartmentChatTabCompleter;
+import org.government.tabcomplete.OrganizationChatTabCompleter;
+import org.government.tabcomplete.OrganizationTabCompleter;
 import org.government.utils.Organization;
 
 import java.io.File;
@@ -36,9 +40,26 @@ public class Government extends JavaPlugin {
         INSTANCE = this;
         getServer().getPluginManager().registerEvents(new events(this), this);
 
-        getCommand("org").setExecutor(new OrganizationCommand(this, new LuckPermsIntegration()));
-        getCommand("departmentchat").setExecutor(new DepartmentChatCommand(this));
-        getCommand("organizationchat").setExecutor(new OrganizationChatCommand(this));
+        OrganizationCommand orgCmd = new OrganizationCommand(this, new LuckPermsIntegration());
+        PluginCommand orgPluginCmd = getCommand("org");
+        if (orgPluginCmd != null) {
+            orgPluginCmd.setExecutor(orgCmd);
+            orgPluginCmd.setTabCompleter(new OrganizationTabCompleter(this));
+        }
+
+        DepartmentChatCommand depCmd = new DepartmentChatCommand(this);
+        PluginCommand depPluginCmd = getCommand("departmentchat");
+        if (depPluginCmd != null) {
+            depPluginCmd.setExecutor(depCmd);
+            depPluginCmd.setTabCompleter(new DepartmentChatTabCompleter());
+        }
+
+        OrganizationChatCommand orgChatCmd = new OrganizationChatCommand(this);
+        PluginCommand orgChatPluginCmd = getCommand("organizationchat");
+        if (orgChatPluginCmd != null) {
+            orgChatPluginCmd.setExecutor(orgChatCmd);
+            orgChatPluginCmd.setTabCompleter(new OrganizationChatTabCompleter());
+        }
 
         // Prepare file for storage
         orgFile = new File(getDataFolder(), "organizations.yml");
@@ -96,7 +117,9 @@ public class Government extends JavaPlugin {
 
     private void loadOrganizations() {
         organizations.clear();
-        if (orgFile.exists()) {
+        playerOrgs.clear(); // <--- Важно! Очищаем карту перед загрузкой
+
+        if (orgFile.exists() && orgConfig.isConfigurationSection("organizations")) {
             for (String orgName : orgConfig.getConfigurationSection("organizations").getKeys(false)) {
                 String path = "organizations." + orgName + ".";
                 String leader = orgConfig.getString(path + "leader");
@@ -120,6 +143,7 @@ public class Government extends JavaPlugin {
 
                 for (String member : members) {
                     org.addMember(member, rank.get(member));
+                    playerOrgs.put(member, orgName); // <--- Обязательно! Восстанавливаем членство
                 }
 
                 org.setRanks(localRanks);

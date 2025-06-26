@@ -1,5 +1,6 @@
 package org.government.utils;
 
+import org.bukkit.entity.Player;
 import org.government.integrations.LuckPermsIntegration;
 
 import java.util.*;
@@ -54,8 +55,11 @@ public class Organization {
 
     public void setRank(String player, int rank) {
         if (members.containsKey(player)) {
-            lp.removeOrganizationGroups(player); // Удаляем старые группы
             members.put(player, rank);
+            Player bukkitPlayer = org.government.Government.getInstance().getServer().getPlayer(player);
+            if (bukkitPlayer != null) {
+                lp.setOrganizationGroup(bukkitPlayer, name, rank);
+            }
         }
     }
 

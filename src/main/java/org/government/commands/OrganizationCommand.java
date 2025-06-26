@@ -141,12 +141,11 @@ public class OrganizationCommand implements CommandExecutor {
                     return true;
                 }
                 org.setRank(demotee, currentRank - 1);
+                player.sendMessage("§aИгрок " + demotee + " понижен до ранга " + (currentRank - 1));
                 Player demoteePlayer = Bukkit.getPlayer(demotee);
                 if (demoteePlayer != null) {
-                    lpIntegration.setOrganizationGroup(demoteePlayer, org.getName(), currentRank - 1);
                     demoteePlayer.sendMessage("§cВаш ранг в организации " + org.getName() + " понижен до " + (currentRank - 1) + "!");
                 }
-                player.sendMessage("§aИгрок " + demotee + " понижен до ранга " + (currentRank - 1));
                 break;
 
             case "setrankname":
